@@ -29,25 +29,38 @@ const char* generate_id() {
   return id;
 }
 
-void add_patient() {
+void Track_intensive_care(){
+    
+}
+
+void Track_baby_incubators(){
+
+}
+
+void Track_blood_types(){
+    
+}
+
+void Hospital_capacity() {
+
+}
+
+void Add_patient() {
   
 }
 
-void hospital_capacity() {
+void Edit_patient() {
 
 }
 
-void edit_patient() {
+void List_patients() {
 
 }
 
-void list_patients() {
+void Delete_patient() {
 
 }
 
-void delete_patient() {
-
-}
 
 int main() {
     //main appearance menu 
@@ -82,13 +95,13 @@ int main() {
                 Track_blood_types();
                 break;
             case 5:
-                Add_patients();
+                Add_patient();
                 break;
             case 6:
                 Edit_patients();
                 break;
             case 7:
-                list_patients();
+                List_patients();
                 break;
             case 8:
                 Delete_patients();
