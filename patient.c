@@ -4,6 +4,7 @@ struct patient
 {
     char name[100];
     int patient_ID;
+    char patient_type;
     int age;
     char address[100];
     char gender;
