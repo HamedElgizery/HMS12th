@@ -2,10 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 struct patient
 {
+    char patient_ID[5];
     char name[100];
-    int patient_ID;
     int age;
     char address[100];
     char gender;
@@ -17,20 +18,16 @@ struct patient
 };
 
 const char* generate_id() {
-  static char id[4];
+  char* id = malloc(sizeof(char) * 5);
   for (int i = 0; i < 4; ++i) {
     int num = rand() % 10;
     if (i + num) id[i] = num + '0';
     else --i;
   }
-  for (int i = 0; i < 4; ++i) {
-    printf("%c", id[i]);
-  }
   return id;
 }
 
 void add_patient() {
-  
 }
 
 void hospital_capacity() {
@@ -38,19 +35,16 @@ void hospital_capacity() {
 }
 
 void edit_patient() {
-
 }
 
 void list_patients() {
-
 }
 
 void delete_patient() {
-
 }
 
 int main() {
-    //main appearance menu 
+    //main appearance menu
     int choice = 0; 
     do{
         headMessage("HOSPITAL MANAGEMENT SYSTEM\n");

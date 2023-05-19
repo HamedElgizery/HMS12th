@@ -2,30 +2,56 @@
 #include <stdlib.h>
 #include <csv.h>
 #include <unistd.h>
+#include <stdbool.h>
+
+char* get_curr_dir() {
+  static char cwd[200];
+  getcwd(cwd, sizeof(cwd));
+  int size = 0;
+  while (cwd[size] != '\0') {
+    printf("%c", cwd[size]);
+    size++;
+  }
+  printf("%d\n", size);
+  cwd[size] = cwd[0];
+  cwd[size+1] = '\0'; 
+  return cwd;
+}
+
+
+void setup_file(char* filename, char headers[10][20]) {
+  FILE *file = fopen(filename, "a");
+
+  // Check if file exists
+  bool exist = 0;
+  if (access(filename, F_OK) != -1)
+    return;
+  
+  // Open CSV file for writing
+  if (file == NULL) {
+      printf("Error creating file\n");
+      return;
+  }
+  csv_fwrite(file, headers, sizeof(headers) / sizeof(char*));
+}
 
 int main() {
-    FILE *file;
-    char filename[] = "patient_info.csv";
-    int exists = 0;
-
-    // Check if file exists
-    if (access(filename, F_OK) != -1) {
-        printf("File already exists\n");
-        exists = 1;
+    char filenames[3][20] = {"patient_info.csv", "rooms_info.csv", "blood_amount.csv"};
+    char headers[3][10][20] = {
+      {"ID", "Name", "ServiceType", "Age", "Address","Sex","DiseaseDescription", "SpecialistRoomNumber", "FamilyContacts"},
+      {"ID", "AvailableBeds", "Type"},
+      {"BloodType", "Amount(L)"}
+    };
+    for (int i = 0; i < sizeof(filenames) / sizeof(char*); ++i) {
+      setup_file(filenames[i], headers[i]);
     }
-
-    // Open CSV file for writing
-    file = fopen(filename, "a");
-    if (file == NULL) {
-        printf("Error creating file\n");
-        return 1;
-    }
+    printf("%s", get_curr_dir());
+    /*
     csv_init_file(&file, ',');
 
     if (!exists) {
         // Write CSV header
-        const char * header[] = {"Name", "Service type", "Age", "Address","Sex","Disease description", "Specialist room number", "Family contacts"};
-        csv_fwrite(file, header, 8);
+        const char * header[] = {};
     }
 
     //Write sample data
@@ -39,6 +65,7 @@ int main() {
     fclose(file);
 
     printf("File created successfully\n");
+    */
     return 0;
 }
 
