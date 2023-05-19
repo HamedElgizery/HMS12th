@@ -11,7 +11,7 @@ struct patient
     char gender;
     char blood_type[4];
     char disease[100];
-    int specialist_roomno;
+    int specialist_room_no;
     int fam_contact[20];
 
 };
@@ -43,15 +43,13 @@ void Track_blood_types(){
     char bloodQuantity[6];
     for (int i = 0; i < 9; i++)
     {
-        if (  == bloodType)
-        {
+        if (  == bloodType) {
            char bloodQuantity[6] = bloodType;
            break;
-        };
-    };
-    
+         }
+    } 
     return bloodQuantity;
-}
+    }
 }
 
 void Hospital_capacity() {
