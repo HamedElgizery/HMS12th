@@ -38,7 +38,20 @@ void Track_baby_incubators(){
 }
 
 void Track_blood_types(){
+    char* Query (char file_name[6], char bloodType[6])
+{
+    char bloodQuantity[6];
+    for (int i = 0; i < 9; i++)
+    {
+        if (  == bloodType)
+        {
+           char bloodQuantity[6] = bloodType;
+           break;
+        };
+    };
     
+    return bloodQuantity;
+}
 }
 
 void Hospital_capacity() {
