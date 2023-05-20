@@ -147,7 +147,42 @@ void Edit_patient() {
 }
 
 void List_patients() {
-
+  headMessage("View patient details\n");
+  printf("Enter the id of patient: \n");
+  char id[20], buffer[50];
+  scanf("%s", id);
+  FILE* file = fopen("patients_info.txt", "r");
+  bool found = 0;
+  int line_number = 0;
+  while (!found && fgets(buffer, 50, file)) {
+    if (line_number % 9 == 0) {
+      remove_trialing_endl(buffer);
+      if (strcmp(buffer, id) == 0) {
+        found = 1;
+        printf("ID: %s\n", buffer);
+        fgets(buffer, 30, file);
+        printf("Name: %s", buffer);
+        fgets(buffer, 5, file);
+        printf("Age: %s", buffer);
+        fgets(buffer, 50, file);
+        printf("Address: %s", buffer);
+        fgets(buffer, 30, file);
+        printf("Gender: %s", buffer);
+        fgets(buffer, 5, file);
+        printf("Blood Type: %s", buffer);
+        fgets(buffer, 30, file);
+        printf("Illness: %s", buffer);
+        fgets(buffer, 30, file);
+        printf("Specialist Room No.: %s", buffer);
+        fgets(buffer, 30, file);
+        printf("Family Contact Number: %s", buffer);
+        continue;
+      }
+    }
+    line_number++;
+  }
+  if (!found) printf("No such patient exists...");
+  fclose(file);
 }
 
 void Delete_patient() {
