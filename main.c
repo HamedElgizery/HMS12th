@@ -1,23 +1,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <stdbool.h>
 
 
-struct patient
-{
-    char patient_ID[5];
-    char name[100];
-    int age;
-    char address[100];
-    char gender;
-    char blood_type[4];
-    char disease[100];
-    int specialist_roomno;
-    int fam_contact[20];
+typedef struct {
+    char* id;
+    char name[30];
+    char age[3];
+    char address[50];
+    char gender[30];
+    char blood_type[3];
+    char disease[30];
+    char specialist_room_no[30];
+    char fam_contact[30];
+} patient;
 
-};
-
-const char* generate_id() {
+char* generate_id() {
   char* id = malloc(sizeof(char) * 5);
   for (int i = 0; i < 4; ++i) {
     int num = rand() % 10;
@@ -27,21 +27,159 @@ const char* generate_id() {
   return id;
 }
 
-void add_patient() {
+void Track_intensive_care(){
+    
 }
 
-void hospital_capacity() {
+void Track_baby_incubators(){
+
+}
+/*
+char* Query (char file_name[6], char bloodType[6]) {
+  char bloodQuantity[6];
+  for (int i = 0; i < 9; i++) {
+    if (  == bloodType) {
+      char bloodQuantity[6] = bloodType;
+      break;
+    }
+  } 
+  return bloodQuantity;
+}
+    */
+void Track_blood_types(){
+}
+
+void Hospital_capacity() {
 
 }
 
-void edit_patient() {
+/*
+ * ID
+ *
+ *
+ * */
+
+void printMessageCenter(const char* message) {
+    int len =0;
+    int pos = 0;
+    //calculate how many space need to print
+    len = (78 - strlen(message))/2;
+    printf("\t\t\t");
+    for(pos =0 ; pos < len ; pos++)
+    {
+        //print space
+        printf(" ");
+    }
+    //print message
+    printf("%s",message);
 }
 
-void list_patients() {
+void headMessage(const char *message) {
+  printf("\033[2J\033[1;1H");
+  printf("\t\t\t###########################################################################");
+  printf("\n\t\t\t############                                                   ############");
+  printf("\n\t\t\t############      Hospital management System Project in C      ############");
+  printf("\n\t\t\t############                                                   ############");
+  printf("\n\t\t\t###########################################################################");
+  printf("\n\t\t\t---------------------------------------------------------------------------\n");
+  printMessageCenter(message);
+  printf("\n\t\t\t----------------------------------------------------------------------------\n");
 }
 
-void delete_patient() {
+void remove_trialing_endl(char *str) {
+  for (int i = 0; str[i] != '\0'; ++i)
+    if (str[i] == '\n') str[i] = '\0';
 }
+
+void Add_patient(){
+    patient new_patient;
+    headMessage("Add a new patient\n");
+    new_patient.id = generate_id();
+    fflush(stdin);
+    printf("Enter the patient's name: \n");
+    fgets(new_patient.name, 30, stdin);
+    remove_trialing_endl(new_patient.name);
+    fflush(stdin);
+    printf("Enter the patient's age: \n");
+    fgets(new_patient.age, 3, stdin);
+    remove_trialing_endl(new_patient.age);
+    fflush(stdin);
+    printf("Enter the patient's address: \n");
+    fgets(new_patient.address, 50, stdin);
+    remove_trialing_endl(new_patient.address);
+    fflush(stdin);
+    printf("Choose (M) or (F) for gender: \n");
+    fgets(new_patient.gender, 30, stdin);
+    remove_trialing_endl(new_patient.gender);
+    fflush(stdin);
+    printf("Enter the patient's blood type: \n");
+    fgets(new_patient.blood_type, 3, stdin);
+    remove_trialing_endl(new_patient.blood_type);
+    fflush(stdin);
+    printf("Enter patient's illness: \n");
+    fgets(new_patient.disease, 30, stdin);
+    remove_trialing_endl(new_patient.disease);
+    fflush(stdin);
+    printf("Enter specialist room number: \n");
+    fgets(new_patient.specialist_room_no, 30, stdin);
+    remove_trialing_endl(new_patient.specialist_room_no);
+    fflush(stdin);
+    printf("Enter emergency family contact: \n");
+    fgets(new_patient.fam_contact, 30, stdin);
+    remove_trialing_endl(new_patient.fam_contact);
+    fflush(stdin);
+
+    FILE* patients_file =  fopen("patients_info.txt", "a");
+    fprintf(patients_file, "%s\n", new_patient.id);
+    fprintf(patients_file, "%s\n", new_patient.name);
+    fprintf(patients_file, "%s\n", new_patient.age);
+    fprintf(patients_file, "%s\n", new_patient.address);
+    fprintf(patients_file, "%s\n", new_patient.gender);
+    fprintf(patients_file, "%s\n", new_patient.blood_type);
+    fprintf(patients_file, "%s\n", new_patient.disease);
+    fprintf(patients_file, "%s\n", new_patient.specialist_room_no);
+    fprintf(patients_file, "%s\n", new_patient.fam_contact);
+    fclose(patients_file);
+}
+
+void Edit_patient() {
+
+}
+
+void List_patients() {
+
+}
+
+void Delete_patient() {
+  headMessage("Delete a patient\n");
+  printf("Enter the id of patient: \n");
+  char id[20];
+  scanf("%s", id);
+  FILE* f1 = fopen("patients_info.txt", "r");
+  FILE* f2 = fopen("patients_info2.txt", "w");
+  char buffer[50];
+  int line_number = 0;
+  bool found = 0;
+  while (fgets(buffer, 50, f1)) {
+    if (line_number % 9 == 0) {
+      remove_trialing_endl(buffer);
+      if (strcmp(buffer, id) == 0) {
+        found = 1;
+        for (int i = 0; i < 8; ++i) fgets(buffer, 50, f1);
+        continue;
+      }
+      else fprintf(f2, "%s\n", buffer);
+    }
+    else fprintf(f2, "%s", buffer);
+    line_number++;
+  }
+  if (!found) printf("Patient with the given ID wasn't found...\n");
+  else printf("Patient with the ID '%s' was deleted successfully\n", id);
+  fclose(f1);
+  fclose(f2);
+  rename("patients_info2.txt", "patients_info.txt"); 
+}
+
 
 int main() {
     //main appearance menu
@@ -76,16 +214,16 @@ int main() {
                 Track_blood_types();
                 break;
             case 5:
-                Add_patients();
+                Add_patient();
                 break;
             case 6:
-                Edit_patients();
+                Edit_patient();
                 break;
             case 7:
-                list_patients();
+                List_patients();
                 break;
             case 8:
-                Delete_patients();
+                Delete_patient();
                 break;
             case 0:
                 printf("You are now exiting the menu...");

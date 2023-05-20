@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/Users/aismail/Desktop/Shahd AAST/HMS12th",
-      "program": "c:/Users/aismail/Desktop/Shahd AAST/HMS12th/build/Debug/outDebug",
+      "cwd": "c:/Users/Zeina/OneDrive/Documents/GitHub/HMS12th",
+      "program": "c:/Users/Zeina/OneDrive/Documents/GitHub/HMS12th/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
