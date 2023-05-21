@@ -44,6 +44,7 @@ typedef struct {
     char disease[30];
     char specialist_room_no[30];
     char fam_contact[30];
+    char department[30];
     bool exist;
 } patient;
 
@@ -62,7 +63,8 @@ const char* PATIENT_HEADERS[] = {
   "Blood Type",
   "Illness",
   "Specialist Room No.",
-  "Family Contact No."
+  "Family Contact No.",
+  "Department"
 };
 
 void remove_trialing_endl(char* str) {
@@ -141,6 +143,9 @@ patient extract_from_file(FILE* file) {
   fgets(buffer, 30, file);
   remove_trialing_endl(buffer);
   strcpy(extracted_patient.fam_contact, buffer);
+  fgets(buffer, 30, file);
+  remove_trialing_endl(buffer);
+  strcpy(extracted_patient.department, buffer);
   return extracted_patient;
 }
 
@@ -156,10 +161,10 @@ void print_patient_data(patient extracted_patient) {
   printf("Illness: %s\n", extracted_patient.disease);
   printf("Specialist Room No.: %s\n", extracted_patient.specialist_room_no);
   printf("Family Contact Number: %s\n", extracted_patient.fam_contact);
+  printf("Department: %s\n", extracted_patient.department);
 }
 
-
-void track_intensive_care(){
+void track_intensive_care() {
   headMessage("TRACK INTENSIVE CARE");
   int count = 0;
   char buffer[30];
@@ -253,7 +258,38 @@ void track_baby_incubators() {
 
 void hospital_capacity() {
   headMessage("HOSPITAL CAPACITY");
-  //return MAX_CAPACITY - count_newborn_patients();
+  char dep[30][30];
+  int cnt[30], idx = 0;
+  FILE* file = fopen("patients_info.txt", "r");
+  if (file == NULL) {
+    printf("No patients yet!\n");
+    return;
+  }
+  int line_number = 0;
+  while (fgets(buffer, 40, file)) {
+    if (line_number % 11 == 10) {
+      remove_trialing_endl(buffer); 
+      bool found = 0;
+      for (int i = 0; i < idx; ++i) {
+        if (strcmp(buffer, dep[i]) == 0) {
+          cnt[i]++;
+          found = 1;
+          break;
+        }
+      }
+      if (!found) {
+        strcpy(dep[idx], buffer);
+        cnt[idx++] = 1;
+      }
+    }
+    line_number++;
+  }
+
+  printf("Department\tNumber of Patients\n");
+  for (int i = 0; i < idx; ++i) {
+    printf("%s\t\t%d\n", dep[i], cnt[i]);
+  }
+  fclose(file);
 }
 
 void add_patient_file(patient* to_add) {
@@ -268,6 +304,7 @@ void add_patient_file(patient* to_add) {
   fprintf(patients_file, "%s\n", to_add->disease);
   fprintf(patients_file, "%s\n", to_add->specialist_room_no);
   fprintf(patients_file, "%s\n", to_add->fam_contact);
+  fprintf(patients_file, "%s\n", to_add->department);
   fclose(patients_file);
 }
 
@@ -311,6 +348,10 @@ void add_patient() {
   printf("Enter emergency family contact: \n");
   fgets(new_patient.fam_contact, 30, stdin);
   remove_trialing_endl(new_patient.fam_contact);
+  fflush(stdin);
+  printf("Enter patient's department: \n");
+  fgets(new_patient.department, 30, stdin);
+  remove_trialing_endl(new_patient.department);
   fflush(stdin);
   add_patient_file(&new_patient);
 }
@@ -459,6 +500,8 @@ void edit_patient_id(char* id) {
     case 9:
       strcpy(extracted_patient.fam_contact, buffer);
       break;
+    case 10:
+      strcpy(extracted_patient.department, buffer);
     case 0:
       break;
     default:
