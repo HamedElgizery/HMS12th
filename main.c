@@ -47,6 +47,11 @@ typedef struct {
     bool exist;
 } patient;
 
+typedef struct {
+  char type[5];
+  int amount_L;
+} blood_type;
+
 const char* PATIENT_HEADERS[] = {
   "ID",
   "Name",
@@ -62,7 +67,6 @@ const char* PATIENT_HEADERS[] = {
 
 void remove_trialing_endl(char* str) {
   for (int i = 0; str[i] != '\0'; ++i) {
-    //printf("%d", i);
     if (str[i] == '\n') {
       str[i] = '\0';
       break;
@@ -178,6 +182,26 @@ void track_intensive_care(){
 
 
 void track_blood_types(){
+  char buffer[50];
+  blood_type blood_type_holder;
+  FILE* file = fopen("bloodtype.txt", "r");
+  printf("Type\tAmount(L)\n");
+  if (file == NULL) {
+    printf("Unable to open 'bloodtype.txt' file!\n");
+  } else {
+    while (fgets(buffer, 20, file)) {
+      remove_trialing_endl(buffer);
+      strcpy(blood_type_holder.type, buffer);
+      fgets(buffer, 20, file);
+      remove_trialing_endl(buffer);
+      blood_type_holder.amount_L = atoi(buffer);
+      printf("%s\t%d\n", blood_type_holder.type, blood_type_holder.amount_L);
+    }
+  }
+}
+
+void add_blood() {
+     
 }
 
 void track_baby_incubators() {
@@ -202,12 +226,9 @@ void track_baby_incubators() {
 }
 
 void hospital_capacity() {
-  headMessage("Hospital capacity");
+  headMessage("HOSPITAL CAPACITY");
   //return MAX_CAPACITY - count_newborn_patients();
 }
-
-
-
 
 void add_patient_file(patient* to_add) {
   FILE* patients_file =  fopen("patients_info.txt", "a");
@@ -267,9 +288,6 @@ void add_patient() {
   fflush(stdin);
   add_patient_file(&new_patient);
 }
-
-
-
 
 patient extract(char* id) {
   char buffer[50];
@@ -357,7 +375,7 @@ void delete_patient_id(char* id) {
 char* get_id(char* title) {
   headMessage(title);
   printf("Enter the id of patient: \n");
-  char* id = malloc(sizeof(char) * 6);// = malloc(sizeof(char) );
+  char* id = malloc(sizeof(char) * 6);
 
   fflush(stdin);
   fgets(id, 5, stdin); 
@@ -441,7 +459,7 @@ void delete_patient() {
 
 int main() {
   //main appearance menu
-  int choice = 0; 
+  int choice; 
   do{
       headMessage("HOSPITAL MANAGEMENT SYSTEM");
       printf("\t\t\t1) Track intensive care\n");
