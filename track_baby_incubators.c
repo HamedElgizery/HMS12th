@@ -2,8 +2,7 @@
 int count_newborn_patients(){
     int count =0;
     char line[30];
-    FILE *fp;
-    fopen("D://patients_info.txt", "r");
+    FILE *fp= fopen("patients_info.txt", "r");
     if (fp == 0){
         printf("Unable to open file\n");
         return -1;
