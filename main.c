@@ -81,7 +81,7 @@ bool id_exists(char* id) {
   char buffer[50];
   int line_number = 0;
   while (fgets(buffer, 50, file)) {
-    if (line_number % 9 == 0) {
+    if (line_number % 11 == 0) {
       remove_trialing_endl(buffer);
       if (strcmp(buffer, id) == 0) {
         return 1;
@@ -180,9 +180,9 @@ void track_intensive_care() {
         print_patient_data(holder);    
       }
     }
-    fclose(file);
+    printf("Available Intensive Care Beds: %d\n", MAX_CAPACITY_INTENSIVE - count);
   }
-  printf("Available Intensive Care Beds: %d\n", MAX_CAPACITY_INTENSIVE - count);
+  fclose(file);
 }
 
 
@@ -204,6 +204,7 @@ void track_blood_types(){
       printf("%s\t%d\n", blood_type_holder.type, blood_type_holder.amount_L);
     }
   }
+  fclose(file);
 }
 
 void change_blood() {
@@ -226,6 +227,10 @@ void change_blood() {
         fgets(buffer, 30, file1);
         int amount = atoi(buffer);
         amount += delta;
+        if (amount < 0) {
+          printf("There isn't enought blood, can't perform that!");
+          amount -= delta;
+        }
         fprintf(file2, "%d\n", amount);
       }
     }
@@ -251,9 +256,9 @@ void track_baby_incubators() {
         print_patient_data(holder);    
       }
     }
-    fclose(file);
+    printf("Available Incubators: %d\n", MAX_CAPACITY_INCUBATORS - count);
   }
-  printf("Available Incubators: %d\n", MAX_CAPACITY_INCUBATORS - count);
+  fclose(file);
 }
 
 void hospital_capacity() {
@@ -362,7 +367,7 @@ patient extract(char* id) {
   FILE* file = fopen("patients_info.txt", "r");
   int line_number = 0;
   while (!extracted_patient.exist && fgets(buffer, 50, file)) {
-    if (line_number % 10 == 0) {
+    if (line_number % 11 == 0) {
       remove_trialing_endl(buffer);
       if (strcmp(buffer, id) == 0) {
         extracted_patient.exist = true;
@@ -394,6 +399,9 @@ patient extract(char* id) {
         fgets(buffer, 30, file);
         remove_trialing_endl(buffer);
         strcpy(extracted_patient.fam_contact, buffer);
+        fgets(buffer, 30, file);
+        remove_trialing_endl(buffer);
+        strcpy(extracted_patient.department, buffer);
         break;
       }
     }
@@ -413,18 +421,18 @@ void list_patient_id(char* id) {
   print_patient_data(extracted_patient);
 }
 
-void delete_patient_id(char* id) {
+void delete_patient_id(char* id, bool show_message) {
   FILE* f1 = fopen("patients_info.txt", "r");
   FILE* f2 = fopen("patients_info2.txt", "w");
   char buffer[50];
   int line_number = 0;
   bool found = 0;
   while (fgets(buffer, 50, f1)) {
-    if (line_number % 10 == 0) {
+    if (line_number % 11 == 0) {
       remove_trialing_endl(buffer);
       if (strcmp(buffer, id) == 0) {
         found = 1;
-        for (int i = 0; i < 9; ++i) fgets(buffer, 50, f1);
+        for (int i = 0; i < 10; ++i) fgets(buffer, 50, f1);
         continue;
       }
       else fprintf(f2, "%s\n", buffer);
@@ -432,8 +440,10 @@ void delete_patient_id(char* id) {
     else fprintf(f2, "%s", buffer);
     line_number++;
   }
-  if (!found) printf("Patient with the given ID wasn't found...\n");
-  else printf("Patient with the ID '%s' was deleted successfully\n", id);
+  if (show_message) {
+    if (!found) printf("Patient with the given ID wasn't found...\n");
+    else printf("Patient with the ID '%s' was deleted successfully\n", id);
+  }
   fclose(f1);
   fclose(f2);
   rename("patients_info2.txt", "patients_info.txt"); 
@@ -460,13 +470,13 @@ void edit_patient_id(char* id) {
   char buffer[50];
   FILE* file = fopen("patients_info.txt", "r");
   list_patient_id(id);
-  delete_patient_id(id);
-  for (int i = 1; i <= 9; ++i)
+  delete_patient_id(id, false);
+  for (int i = 1; i <= 10; ++i)
     printf("\t\t\t%d) %s\n", i, PATIENT_HEADERS[i]);
   printf("---- Press zero to discard ----");
   int choice;
   scanf("%d", &choice);
-  if (choice) {
+  if (0 < choice && choice <= 10) {
     printf("Enter the new '%s':\n", PATIENT_HEADERS[choice]);
     fflush(stdin);
     fgets(buffer, 50, stdin);
@@ -523,7 +533,7 @@ void list_patient() {
 
 void delete_patient() {
   char* id = get_id("DELETE PATIENT DATA");
-  delete_patient_id(id);
+  delete_patient_id(id, true);
 }
 
 int main() {
@@ -574,7 +584,8 @@ int main() {
           delete_patient();
           break;
         case 0:
-          printf("You are now exiting the menu...");
+          printf("You are now exiting the menu...\n");
+          fflush(stdout);
           sleep(3);
           exit(1);
     }
