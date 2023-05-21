@@ -182,6 +182,7 @@ void track_intensive_care(){
 
 
 void track_blood_types(){
+  headMessage("TRACK BLOOD QUANTITIY");
   char buffer[50];
   blood_type blood_type_holder;
   FILE* file = fopen("bloodtype.txt", "r");
@@ -200,8 +201,33 @@ void track_blood_types(){
   }
 }
 
-void add_blood() {
-     
+void change_blood() {
+  headMessage("MODIFIY BLOOD AMOUNT");
+  char type[30];
+  int delta;
+  puts("Enter blood type:");
+  scanf("%s", type);
+  puts("Enter delta:");
+  scanf("%d", &delta);
+  FILE* file1 = fopen("bloodtype.txt", "r");
+  FILE* file2 = fopen("bloodtype2.txt", "w");
+  if (file1 == NULL || file2 == NULL) {
+    printf("Couldn't open the files!");
+  } else {
+    while (fgets(buffer, 30, file1)) {
+      remove_trialing_endl(buffer);
+      fprintf(file2, "%s\n", buffer);
+      if (strcmp(type, buffer) == 0) {
+        fgets(buffer, 30, file1);
+        int amount = atoi(buffer);
+        amount += delta;
+        fprintf(file2, "%d\n", amount);
+      }
+    }
+  }
+  fclose(file1);
+  fclose(file2);
+  rename("bloodtype2.txt", "bloodtype.txt"); 
 }
 
 void track_baby_incubators() {
@@ -467,13 +493,14 @@ int main() {
       printf("\t\t\t3) Check which patients occupy what department\n");
       printf("\t\t\t4) Check quantity of a blood type\n");
       printf("\t\t\t5) Add a new patient record\n");
-      printf("\t\t\t6) Edit existing patient record\n");
-      printf("\t\t\t7) Show patient list and info\n");
+      printf("\t\t\t6) Change blood amount\n");
+      printf("\t\t\t7) Edit existing patient record\n");
+      printf("\t\t\t8) Show patient list and info\n");
       printf("\033[0;31m");
-      printf("\t\t\t8) Delete a patient record\n");
+      printf("\t\t\t9) Delete a patient record\n");
       printf("\033[0m");
       printf("---- Press zero to exit ----");
-
+      fflush(stdin);
       scanf("%d", &choice);
       switch (choice) {
         case 1: 
@@ -492,18 +519,21 @@ int main() {
           add_patient();
           break;
         case 6:
-          edit_patient();
+          change_blood();
           break;
         case 7:
-          list_patient();
+          edit_patient();
           break;
         case 8:
+          list_patient();
+          break;
+        case 9:
           delete_patient();
           break;
         case 0:
           printf("You are now exiting the menu...");
           sleep(3);
-          break;
+          exit(1);
     }
     puts("\nPress Enter to continue...");
     fflush(stdin);
