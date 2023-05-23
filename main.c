@@ -17,7 +17,6 @@
 #define MAX_CAPACITY_INCUBATORS 70
 #define MAX_CAPACITY_INTENSIVE 30
 
-char buffer[50];
 
 typedef struct {
     char id[10];
@@ -111,13 +110,14 @@ void remove_trialing_endl(char* str) {
 }
 
 bool id_exists(char* id) {
+  char buffer[50];
   FILE* file = fopen("patients_info.txt", "r");
   int line_number = 0;
   while (fgets(buffer, 50, file)) {
     if (line_number % 11 == 0) {
       remove_trialing_endl(buffer);
       if (strcmp(buffer, id) == 0) {
-        return tru;
+        return true;
       }
     }
     line_number++;
@@ -142,6 +142,7 @@ const char* generate_id() {
 }
 
 patient extract_from_file(FILE* file) {
+  char buffer[50];
   patient extracted_patient;
   extracted_patient.exist = true;
   fgets(buffer, 30, file);
@@ -218,6 +219,7 @@ void track_intensive_care() {
 }
 
 void track_blood_types(){
+  char buffer[50];
   headMessage("TRACK BLOOD QUANTITIY");
   blood_type blood_type_holder;
   FILE* file = fopen("bloodtype.txt", "r");
@@ -238,6 +240,7 @@ void track_blood_types(){
 }
 
 void change_blood() {
+  char buffer[50];
   headMessage("MODIFIY BLOOD AMOUNT");
   char type[30];
   int delta;
@@ -301,6 +304,7 @@ void track_baby_incubators() {
 }
 
 void hospital_capacity() {
+  char buffer[50];
   headMessage("HOSPITAL CAPACITY");
   char dep[30][30];
   int cnt[30], idx = 0;
@@ -424,6 +428,7 @@ void list_patient_id(char* id) {
 }
 
 void delete_patient_id(char* id, bool show_message) {
+  char buffer[50];
   FILE* f1 = fopen("patients_info.txt", "r");
   FILE* f2 = fopen("patients_info2.txt", "w");
   if (f1 == NULL || f2 == NULL) {
@@ -474,6 +479,7 @@ void edit_patient_id(char* id) {
     printf("No such patient exists...\n");
     return;
   }
+  char buffer[50];
   FILE* file = fopen("patients_info.txt", "r");
   list_patient_id(id);
   for (int i = 1; i <= 10; ++i)
