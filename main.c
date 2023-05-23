@@ -1,3 +1,11 @@
+/*
+ * 12th project PROBLEM SOLVING
+ * Zeina Ahmed 221017888
+ * Hamed Ashraf 221027642
+ * Engy Elbatran 221007986
+ * Shahd Adel 221007980
+ * */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,6 +16,67 @@
 #define MAX_CAPACITY_NORMAL 560
 #define MAX_CAPACITY_INCUBATORS 70
 #define MAX_CAPACITY_INTENSIVE 30
+
+char buffer[50];
+
+typedef struct {
+    char id[10];
+    char name[50];
+    char age[50];
+    char patient_type[50];
+    char address[50];
+    char gender[50];
+    char blood_type[50];
+    char disease[50];
+    char specialist_room_no[50];
+    char fam_contact[50];
+    char department[50];
+    bool exist;
+} patient;
+
+typedef struct {
+  char type[5];
+  int amount_L;
+} blood_type;
+
+const char* PATIENT_HEADERS[] = {
+  "ID",
+  "Name",
+  "Age",
+  "Patient Type",
+  "Address",
+  "Gender",
+  "Blood Type",
+  "Illness",
+  "Specialist Room No.",
+  "Family Contact No.",
+  "Department"
+};
+
+void printMessageCenter(const char*);
+void headMessage(const char*);
+void remove_trialing_endl(char*);
+
+bool id_exists(char*); // check if a patient exists
+const char* generate_id();
+patient extract_from_file(FILE*); // extract the data of the first found patient in the file
+void print_patient_data(patient); 
+void track_intensive_care(); // list all patients that there type is "emergency"
+void track_blood_types(); // list all the blood types that exist in the file and their amounts
+void change_blood(); // add or remove an amount from a blood type
+void track_baby_incubators(); // list all patients that there typs is "newborn"
+void hospital_capacity(); // print the number of patients in each department
+void add_patient_file(patient); // add a patient to a file (data already given in the parameter)
+patient extract(char*); // extract the data of a patient from a file (given the id)
+void list_patient_id(char*); // list the data of a patient (given the id)
+void delete_patient_id(char*, bool); // delete a patient (given the id)
+char* get_id(char*); // asks user for an id
+void edit_patient_id(char*); // edit patient data (given the id)
+void add_patient(); // runs the add patient request (accept data from the user)
+void edit_patient(); // runs the edit patient request
+void list_patient(); // runs the list patient request
+void delete_patient(); // runs the delete patient request
+void list_all(); // list all the patients in the file
 
 void printMessageCenter(const char* message) {
     int len = 0, pos = 0;
@@ -32,41 +101,6 @@ void headMessage(const char *message) {
   printf("\n\t\t\t----------------------------------------------------------------------------\n");
 }
 
-char buffer[50];
-typedef struct {
-    char id[10];
-    char name[30];
-    char age[30];
-    char patient_type[30];
-    char address[50];
-    char gender[30];
-    char blood_type[30];
-    char disease[30];
-    char specialist_room_no[30];
-    char fam_contact[30];
-    char department[30];
-    bool exist;
-} patient;
-
-typedef struct {
-  char type[5];
-  int amount_L;
-} blood_type;
-
-const char* PATIENT_HEADERS[] = {
-  "ID",
-  "Name",
-  "Age",
-  "Patient Type",
-  "Address",
-  "Gender",
-  "Blood Type",
-  "Illness",
-  "Specialist Room No.",
-  "Family Contact No.",
-  "Department"
-};
-
 void remove_trialing_endl(char* str) {
   for (int i = 0; str[i] != '\0'; ++i) {
     if (str[i] == '\n') {
@@ -78,30 +112,28 @@ void remove_trialing_endl(char* str) {
 
 bool id_exists(char* id) {
   FILE* file = fopen("patients_info.txt", "r");
-  char buffer[50];
   int line_number = 0;
   while (fgets(buffer, 50, file)) {
     if (line_number % 11 == 0) {
       remove_trialing_endl(buffer);
       if (strcmp(buffer, id) == 0) {
-        return 1;
+        return tru;
       }
     }
     line_number++;
   }
   fclose(file);
-  return 0;
+  return false;
 }
 
 
 const char* generate_id() {
-  bool found = 0;
   while (true) {
     srand(time(NULL));
     char* id = malloc(sizeof(char) * 5);
     for (int i = 0; i < 4; ++i) {
       int num = rand() % 10;
-      if (i + num) id[i] = num + '0';
+      if (i != 0 || num != 0) id[i] = num + '0';
       else --i;
     }
     id[4] = '\0';
@@ -110,7 +142,6 @@ const char* generate_id() {
 }
 
 patient extract_from_file(FILE* file) {
-  char buffer[50];
   patient extracted_patient;
   extracted_patient.exist = true;
   fgets(buffer, 30, file);
@@ -125,7 +156,7 @@ patient extract_from_file(FILE* file) {
   fgets(buffer, 30, file);
   remove_trialing_endl(buffer);
   strcpy(extracted_patient.patient_type, buffer);
-  fgets(buffer, 50, file);
+  fgets(buffer, 30, file);
   remove_trialing_endl(buffer);
   strcpy(extracted_patient.address, buffer);
   fgets(buffer, 30, file);
@@ -146,6 +177,7 @@ patient extract_from_file(FILE* file) {
   fgets(buffer, 30, file);
   remove_trialing_endl(buffer);
   strcpy(extracted_patient.department, buffer);
+
   return extracted_patient;
 }
 
@@ -162,12 +194,12 @@ void print_patient_data(patient extracted_patient) {
   printf("Specialist Room No.: %s\n", extracted_patient.specialist_room_no);
   printf("Family Contact Number: %s\n", extracted_patient.fam_contact);
   printf("Department: %s\n", extracted_patient.department);
+  printf("--------------------\n");
 }
 
 void track_intensive_care() {
   headMessage("TRACK INTENSIVE CARE");
   int count = 0;
-  char buffer[30];
   FILE* file = fopen("patients_info.txt", "r");
   if (file == 0){
       printf("Unable to open file\n");
@@ -185,10 +217,8 @@ void track_intensive_care() {
   fclose(file);
 }
 
-
 void track_blood_types(){
   headMessage("TRACK BLOOD QUANTITIY");
-  char buffer[50];
   blood_type blood_type_holder;
   FILE* file = fopen("bloodtype.txt", "r");
   printf("Type\tAmount(L)\n");
@@ -220,10 +250,12 @@ void change_blood() {
   if (file1 == NULL || file2 == NULL) {
     printf("Couldn't open the files!");
   } else {
+    bool found = 0;
     while (fgets(buffer, 30, file1)) {
       remove_trialing_endl(buffer);
       fprintf(file2, "%s\n", buffer);
       if (strcmp(type, buffer) == 0) {
+        found = 1;
         fgets(buffer, 30, file1);
         int amount = atoi(buffer);
         amount += delta;
@@ -234,6 +266,14 @@ void change_blood() {
         fprintf(file2, "%d\n", amount);
       }
     }
+    if (!found) {
+        if (delta < 0) {
+          printf("There isn't enought blood, can't perform that!");
+        }
+        else {
+          fprintf(file2, "%s\n%d\n", type, delta);
+        }
+    }
   }
   fclose(file1);
   fclose(file2);
@@ -243,7 +283,6 @@ void change_blood() {
 void track_baby_incubators() {
   headMessage("TRACK BABY INCUBATORS");
   int count = 0;
-  char buffer[30];
   FILE* file = fopen("patients_info.txt", "r");
   if (file == 0){
       printf("Unable to open file\n");
@@ -268,6 +307,7 @@ void hospital_capacity() {
   FILE* file = fopen("patients_info.txt", "r");
   if (file == NULL) {
     printf("No patients yet!\n");
+    fclose(file);
     return;
   }
   int line_number = 0;
@@ -297,19 +337,19 @@ void hospital_capacity() {
   fclose(file);
 }
 
-void add_patient_file(patient* to_add) {
+void add_patient_file(patient to_add) {
   FILE* patients_file =  fopen("patients_info.txt", "a");
-  fprintf(patients_file, "%s\n", to_add->id);
-  fprintf(patients_file, "%s\n", to_add->name);
-  fprintf(patients_file, "%s\n", to_add->age);
-  fprintf(patients_file, "%s\n", to_add->patient_type);
-  fprintf(patients_file, "%s\n", to_add->address);
-  fprintf(patients_file, "%s\n", to_add->gender);
-  fprintf(patients_file, "%s\n", to_add->blood_type);
-  fprintf(patients_file, "%s\n", to_add->disease);
-  fprintf(patients_file, "%s\n", to_add->specialist_room_no);
-  fprintf(patients_file, "%s\n", to_add->fam_contact);
-  fprintf(patients_file, "%s\n", to_add->department);
+  fprintf(patients_file, "%s\n", to_add.id);
+  fprintf(patients_file, "%s\n", to_add.name);
+  fprintf(patients_file, "%s\n", to_add.age);
+  fprintf(patients_file, "%s\n", to_add.patient_type);
+  fprintf(patients_file, "%s\n", to_add.address);
+  fprintf(patients_file, "%s\n", to_add.gender);
+  fprintf(patients_file, "%s\n", to_add.blood_type);
+  fprintf(patients_file, "%s\n", to_add.disease);
+  fprintf(patients_file, "%s\n", to_add.specialist_room_no);
+  fprintf(patients_file, "%s\n", to_add.fam_contact);
+  fprintf(patients_file, "%s\n", to_add.department);
   fclose(patients_file);
 }
 
@@ -358,56 +398,18 @@ void add_patient() {
   fgets(new_patient.department, 30, stdin);
   remove_trialing_endl(new_patient.department);
   fflush(stdin);
-  add_patient_file(&new_patient);
+  add_patient_file(new_patient);
 }
 
 patient extract(char* id) {
-  char buffer[50];
   patient extracted_patient;
   FILE* file = fopen("patients_info.txt", "r");
-  int line_number = 0;
-  while (!extracted_patient.exist && fgets(buffer, 50, file)) {
-    if (line_number % 11 == 0) {
-      remove_trialing_endl(buffer);
-      if (strcmp(buffer, id) == 0) {
-        extracted_patient.exist = true;
-        strcpy(extracted_patient.id, id);
-        fgets(buffer, 30, file);
-        remove_trialing_endl(buffer);
-        strcpy(extracted_patient.name, buffer);
-        fgets(buffer, 30, file);
-        remove_trialing_endl(buffer);
-        strcpy(extracted_patient.age, buffer);
-        fgets(buffer, 30, file);
-        remove_trialing_endl(buffer);
-        strcpy(extracted_patient.patient_type, buffer);
-        fgets(buffer, 50, file);
-        remove_trialing_endl(buffer);
-        strcpy(extracted_patient.address, buffer);
-        fgets(buffer, 30, file);
-        remove_trialing_endl(buffer);
-        strcpy(extracted_patient.gender, buffer);
-        fgets(buffer, 30, file);
-        remove_trialing_endl(buffer);
-        strcpy(extracted_patient.blood_type, buffer);
-        fgets(buffer, 30, file);
-        remove_trialing_endl(buffer);
-        strcpy(extracted_patient.disease, buffer);
-        fgets(buffer, 30, file);
-        remove_trialing_endl(buffer);
-        strcpy(extracted_patient.specialist_room_no, buffer);
-        fgets(buffer, 30, file);
-        remove_trialing_endl(buffer);
-        strcpy(extracted_patient.fam_contact, buffer);
-        fgets(buffer, 30, file);
-        remove_trialing_endl(buffer);
-        strcpy(extracted_patient.department, buffer);
-        break;
-      }
-    }
-    line_number++;
+  while (!feof(file)) {
+    extracted_patient = extract_from_file(file);
+    if (strcmp(extracted_patient.id, id) == 0) return extracted_patient;
   }
   fclose(file);
+  extracted_patient.exist = false;
   return extracted_patient;
 }
 
@@ -424,7 +426,12 @@ void list_patient_id(char* id) {
 void delete_patient_id(char* id, bool show_message) {
   FILE* f1 = fopen("patients_info.txt", "r");
   FILE* f2 = fopen("patients_info2.txt", "w");
-  char buffer[50];
+  if (f1 == NULL || f2 == NULL) {
+    printf("Couldn't open file");
+    fclose(f1);
+    fclose(f2);
+    return;
+  }
   int line_number = 0;
   bool found = 0;
   while (fgets(buffer, 50, f1)) {
@@ -467,21 +474,21 @@ void edit_patient_id(char* id) {
     printf("No such patient exists...\n");
     return;
   }
-  char buffer[50];
   FILE* file = fopen("patients_info.txt", "r");
   list_patient_id(id);
-  delete_patient_id(id, false);
   for (int i = 1; i <= 10; ++i)
     printf("\t\t\t%d) %s\n", i, PATIENT_HEADERS[i]);
   printf("---- Press zero to discard ----");
   int choice;
   scanf("%d", &choice);
+  if (!choice) return;
   if (0 < choice && choice <= 10) {
     printf("Enter the new '%s':\n", PATIENT_HEADERS[choice]);
     fflush(stdin);
-    fgets(buffer, 50, stdin);
+    fgets(buffer, 40, stdin);
     remove_trialing_endl(buffer);
   }
+  delete_patient_id(id, false);
   switch (choice) {
     case 1:
       strcpy(extracted_patient.name, buffer);
@@ -512,12 +519,13 @@ void edit_patient_id(char* id) {
       break;
     case 10:
       strcpy(extracted_patient.department, buffer);
+      break;
     case 0:
       break;
     default:
       printf("Invalid choice!");
   }
-  add_patient_file(&extracted_patient);
+  add_patient_file(extracted_patient);
   fclose(file);
 }
 
@@ -536,51 +544,70 @@ void delete_patient() {
   delete_patient_id(id, true);
 }
 
+void list_all() {
+  patient holder;
+  FILE* file = fopen("patients_info.txt", "r");
+  if (file == NULL) {
+    printf("No data available!");
+  } else {
+    while (!feof(file)) {
+      holder = extract_from_file(file);
+      print_patient_data(holder);
+    }
+  }
+  fclose(file);
+}
+
 int main() {
   //main appearance menu
   int choice; 
   do{
       headMessage("HOSPITAL MANAGEMENT SYSTEM");
-      printf("\t\t\t1) Track intensive care\n");
-      printf("\t\t\t2) Track newborn babies\n");
-      printf("\t\t\t3) Check which patients occupy what department\n");
-      printf("\t\t\t4) Check quantity of a blood type\n");
-      printf("\t\t\t5) Add a new patient record\n");
-      printf("\t\t\t6) Change blood amount\n");
-      printf("\t\t\t7) Edit existing patient record\n");
-      printf("\t\t\t8) Show patient list and info\n");
+      printf("\t\t\t1) List all patients\n");
+      printf("\t\t\t2) Track intensive care\n");
+      printf("\t\t\t3) Track newborn babies\n");
+      printf("\t\t\t4) Check which patients occupy what department\n");
+      printf("\t\t\t5) Check quantity of a blood type\n");
+      printf("\t\t\t6) Add a new patient record\n");
+      printf("\t\t\t7) Change blood amount\n");
+      printf("\t\t\t8) Edit existing patient record\n");
+      printf("\t\t\t9) Show patient list and info\n");
       printf("\033[0;31m");
-      printf("\t\t\t9) Delete a patient record\n");
+      printf("\t\t\t10) Delete a patient record\n");
       printf("\033[0m");
       printf("---- Press zero to exit ----");
       fflush(stdin);
       scanf("%d", &choice);
+      fflush(stdin);
       switch (choice) {
         case 1: 
+          list_all();
+          break;
+        case 2: 
           track_intensive_care();
           break;
-        case 2:
+        case 3:
           track_baby_incubators();
           break;
-        case 3:
+        case 4:
           hospital_capacity();
           break;
-        case 4:
+        case 5:
           track_blood_types();
           break;
-        case 5:
+        case 6:
           add_patient();
           break;
-        case 6:
+        case 7:
           change_blood();
           break;
-        case 7:
+        case 8:
           edit_patient();
           break;
-        case 8:
+        case 9:
           list_patient();
           break;
-        case 9:
+        case 10:
           delete_patient();
           break;
         case 0:
