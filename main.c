@@ -89,7 +89,7 @@ void printMessageCenter(const char* message) {
 }
 
 void headMessage(const char *message) {
-  printf("\033[2J\033[1;1H");
+  printf("\033[2J\033[1;1H"); // clear the screen
   printf("\t\t\t###########################################################################");
   printf("\n\t\t\t############                                                   ############");
   printf("\n\t\t\t############      Hospital management System Project in C      ############");
@@ -100,6 +100,7 @@ void headMessage(const char *message) {
   printf("\n\t\t\t----------------------------------------------------------------------------\n");
 }
 
+// hamed
 void remove_trialing_endl(char* str) {
   for (int i = 0; str[i] != '\0'; ++i) {
     if (str[i] == '\n') {
@@ -109,6 +110,7 @@ void remove_trialing_endl(char* str) {
   }
 }
 
+// shahd
 bool id_exists(char* id) {
   char buffer[50];
   FILE* file = fopen("patients_info.txt", "r");
@@ -126,7 +128,7 @@ bool id_exists(char* id) {
   return false;
 }
 
-
+// hamed
 const char* generate_id() {
   while (true) {
     srand(time(NULL));
@@ -141,7 +143,9 @@ const char* generate_id() {
   }
 }
 
+// zeina
 patient extract_from_file(FILE* file) {
+  // extract the next patient from file
   char buffer[50];
   patient extracted_patient;
   extracted_patient.exist = true;
@@ -178,12 +182,13 @@ patient extract_from_file(FILE* file) {
   fgets(buffer, 30, file);
   remove_trialing_endl(buffer);
   strcpy(extracted_patient.department, buffer);
-
   return extracted_patient;
 }
 
 
+// engy
 void print_patient_data(patient extracted_patient) {
+  // print data to the user on the console 
   printf("ID: %s\n", extracted_patient.id);
   printf("Name: %s\n", extracted_patient.name);
   printf("Age: %s\n", extracted_patient.age);
@@ -198,6 +203,7 @@ void print_patient_data(patient extracted_patient) {
   printf("--------------------\n");
 }
 
+// shahd
 void track_intensive_care() {
   headMessage("TRACK INTENSIVE CARE");
   int count = 0;
@@ -207,17 +213,18 @@ void track_intensive_care() {
   } else {
     patient holder;
     while(!feof(file)) {
-      holder = extract_from_file(file); 
+      holder = extract_from_file(file); // get next patient in file
       if (strcmp(holder.patient_type, "emergency") == 0) {
         count++;
-        print_patient_data(holder);    
+        print_patient_data(holder); 
       }
     }
-    printf("Available Intensive Care Beds: %d\n", MAX_CAPACITY_INTENSIVE - count);
+    printf("Available Intensive Care Beds: %d\n", MAX_CAPACITY_INTENSIVE - count); // number of intensive care beds available
   }
   fclose(file);
 }
 
+// shahd
 void track_blood_types(){
   char buffer[50];
   headMessage("TRACK BLOOD QUANTITIY");
@@ -227,10 +234,10 @@ void track_blood_types(){
   if (file == NULL) {
     printf("Unable to open 'bloodtype.txt' file!\n");
   } else {
-    while (fgets(buffer, 20, file)) {
+    while (fgets(buffer, 20, file)) { // get next blood type
       remove_trialing_endl(buffer);
-      strcpy(blood_type_holder.type, buffer);
-      fgets(buffer, 20, file);
+      strcpy(blood_type_holder.type, buffer); 
+      fgets(buffer, 20, file); // gets the amount of blood for the current type
       remove_trialing_endl(buffer);
       blood_type_holder.amount_L = atoi(buffer);
       printf("%s\t%d\n", blood_type_holder.type, blood_type_holder.amount_L);
@@ -239,6 +246,7 @@ void track_blood_types(){
   fclose(file);
 }
 
+// hamed
 void change_blood() {
   char buffer[50];
   headMessage("MODIFIY BLOOD AMOUNT");
@@ -283,17 +291,18 @@ void change_blood() {
   rename("bloodtype2.txt", "bloodtype.txt"); 
 }
 
+// zeina
 void track_baby_incubators() {
   headMessage("TRACK BABY INCUBATORS");
   int count = 0;
   FILE* file = fopen("patients_info.txt", "r");
-  if (file == 0){
+  if (file == 0) {
       printf("Unable to open file\n");
   } else {
     patient holder;
     while(!feof(file)) {
-      holder = extract_from_file(file); 
-      if (strcmp(holder.patient_type, "newborn") == 0) {
+      holder = extract_from_file(file); // get next patient
+      if (strcmp(holder.patient_type, "newborn") == 0) { // check if its type is newborn
         count++;
         print_patient_data(holder);    
       }
@@ -303,6 +312,7 @@ void track_baby_incubators() {
   fclose(file);
 }
 
+//hamed
 void hospital_capacity() {
   char buffer[50];
   headMessage("HOSPITAL CAPACITY");
@@ -316,9 +326,10 @@ void hospital_capacity() {
   }
   int line_number = 0;
   while (fgets(buffer, 40, file)) {
-    if (line_number % 11 == 10) {
+    if (line_number % 11 == 10) { // check for the line holding the depeartment
       remove_trialing_endl(buffer); 
       bool found = 0;
+      // check if that department already exists
       for (int i = 0; i < idx; ++i) {
         if (strcmp(buffer, dep[i]) == 0) {
           cnt[i]++;
@@ -326,6 +337,7 @@ void hospital_capacity() {
           break;
         }
       }
+      // if deperatment not found -> add it
       if (!found) {
         strcpy(dep[idx], buffer);
         cnt[idx++] = 1;
@@ -333,7 +345,6 @@ void hospital_capacity() {
     }
     line_number++;
   }
-
   printf("Department\tNumber of Patients\n");
   for (int i = 0; i < idx; ++i) {
     printf("%s\t\t%d\n", dep[i], cnt[i]);
@@ -341,7 +352,9 @@ void hospital_capacity() {
   fclose(file);
 }
 
+// engy
 void add_patient_file(patient to_add) {
+  // save data to file
   FILE* patients_file =  fopen("patients_info.txt", "a");
   fprintf(patients_file, "%s\n", to_add.id);
   fprintf(patients_file, "%s\n", to_add.name);
@@ -357,7 +370,9 @@ void add_patient_file(patient to_add) {
   fclose(patients_file);
 }
 
+// engy
 void add_patient() {
+  // take data for new user
   patient new_patient;
   headMessage("ADD NEW PATIENT");
   strcpy(new_patient.id, generate_id());
@@ -405,6 +420,7 @@ void add_patient() {
   add_patient_file(new_patient);
 }
 
+// zeina
 patient extract(char* id) {
   patient extracted_patient;
   FILE* file = fopen("patients_info.txt", "r");
@@ -417,9 +433,10 @@ patient extract(char* id) {
   return extracted_patient;
 }
 
+// engy
 void list_patient_id(char* id) {
   patient extracted_patient;
-  extracted_patient = extract(id);
+  extracted_patient = extract(id); // get the data of the user with the given id
   if (!extracted_patient.exist) {
     printf("No such patient exists...\n");
     return;
@@ -427,6 +444,7 @@ void list_patient_id(char* id) {
   print_patient_data(extracted_patient);
 }
 
+// hamed
 void delete_patient_id(char* id, bool show_message) {
   char buffer[50];
   FILE* f1 = fopen("patients_info.txt", "r");
@@ -461,11 +479,11 @@ void delete_patient_id(char* id, bool show_message) {
   rename("patients_info2.txt", "patients_info.txt"); 
 }
 
+// zeina
 char* get_id(char* title) {
   headMessage(title);
   printf("Enter the id of patient: \n");
   char* id = malloc(sizeof(char) * 6);
-
   fflush(stdin);
   fgets(id, 5, stdin); 
   fflush(stdin);
@@ -481,7 +499,8 @@ void edit_patient_id(char* id) {
   }
   char buffer[50];
   FILE* file = fopen("patients_info.txt", "r");
-  list_patient_id(id);
+  list_patient_id(id); // print the patient data before
+  // print the choices to edit
   for (int i = 1; i <= 10; ++i)
     printf("\t\t\t%d) %s\n", i, PATIENT_HEADERS[i]);
   printf("---- Press zero to discard ----");
@@ -535,21 +554,28 @@ void edit_patient_id(char* id) {
   fclose(file);
 }
 
+// hamed
 void edit_patient() {
   char* id = get_id("EDIT PATIENT DATA");
   edit_patient_id(id);
+  free(id);
 }
 
+// hamed
 void list_patient() {
   char* id = get_id("VIEW PATIENT DETAILS");
   list_patient_id(id);
+  free(id);
 }
 
+// hamed
 void delete_patient() {
   char* id = get_id("DELETE PATIENT DATA");
   delete_patient_id(id, true);
+  free(id);
 }
 
+// shahd
 void list_all() {
   patient holder;
   FILE* file = fopen("patients_info.txt", "r");
@@ -557,9 +583,9 @@ void list_all() {
     printf("No data available!");
   } else {
     while (!feof(file)) {
-      holder = extract_from_file(file);
+      holder = extract_from_file(file); // get next patient
       print_patient_data(holder);
-    }
+    } 
   }
   fclose(file);
 }
